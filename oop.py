@@ -1,9 +1,3 @@
-# def avg_grades(grade):
-#     if len(grade.values()) > 0:
-#         print(sum(grade.values()) / len(grade.values())) 
-#     else:
-#         return f'Нет оценок'
-
 def avg_grades(grade):
     mean = 0
     grades_count = 0
@@ -36,11 +30,18 @@ class Student:
                 lecturer.grades[course] = [grade]
         else:
             return 'Ошибка'
+
+    def __gt__(self, other):
+        if not isinstance(other, Student):
+            print('Студентов сравниваем только со студентами!')
+            return
+        return avg_grades(self.grades) > avg_grades(other.grades)
+
     def __str__(self):
             return f"""Имя: {self.name}
 Фамилия: {self.surname}
 Средняя оценка за домашние задания: {avg_grades(self.grades)}
-Курсы в процессе обучения: {self.courses_in_progress}
+Курсы в процессе обучения: {', '.join(self.courses_in_progress)}
 Завершенные курсы: {', '.join(self.finished_courses)}
 """    
 
@@ -57,6 +58,12 @@ class Lecturer(Mentor):
     def __str__(self):
         return f'Имя: {self.name}\nФамилия: {self.surname}\nСредняя оценка за лекции: {avg_grades(self.grades)}'
 
+    def __gt__(self, other):
+        if not isinstance(other, Lecturer):
+            print('Лекторов сравниваем только с лекторами!')
+            return
+        return avg_grades(self.grades) > avg_grades(other.grades)
+
 class Reviewer(Mentor):
     def rate_hw(self, student, course, grade):
         if isinstance(student, Student) and course in self.courses_attached and course in student.courses_in_progress:
@@ -71,25 +78,49 @@ class Reviewer(Mentor):
         return f'Имя: {self.name}\nФамилия: {self.surname}'
 
 
-best_student = Student('Ruoy', 'Eman', 'your_gender')
-best_student.courses_in_progress += ['Python']
- 
+best_student = Student('Pavel', 'Durov', 'male')
+best_student.courses_in_progress += ['Python','C++']
+
+
+bad_student = Student('Denis','Dorohov','male')
+
+
 cool_rewiewer = Reviewer('Some', 'Buddy')
 cool_rewiewer.courses_attached += ['Python']
 cool_rewiewer.rate_hw(best_student, 'Python', 10)
-cool_rewiewer.rate_hw(best_student, 'Python', 10)
+cool_rewiewer.rate_hw(best_student, 'C++', 10)
 cool_rewiewer.rate_hw(best_student, 'Python', 10)
 
-best_lecturer = Lecturer('Dima', 'Fomin')
-best_lecturer.courses_attached += ['OOP', 'Python']
-best_student.rate_lecture(best_lecturer, 'Python', 5)
-print(best_student.grades)
+cool_rewiewer.courses_attached += ['Python']
+cool_rewiewer.rate_hw(bad_student, 'Python', 3)
+cool_rewiewer.rate_hw(bad_student, 'Python', 5)
 
-# print(cool_rewiewer.name)
+best_lecturer = Lecturer('Miron', 'Fedorov')
+best_lecturer.courses_attached += ['C++', 'Python']
+
+bad_lecturer = Lecturer('Ivan', 'Ohlibystin')
+bad_lecturer.courses_attached += ['C++', 'Python']
+
+bad_student.rate_lecture(best_lecturer, 'Python', 4)
+best_student.rate_lecture(best_lecturer, 'Python', 10)
+best_student.rate_lecture(best_lecturer, 'C++', 9)
+
+bad_student.rate_lecture(best_lecturer, 'Python', 4)
+best_student.rate_lecture(best_lecturer, 'Python', 10)
+best_student.rate_lecture(best_lecturer, 'C++', 9)
+bad_student.rate_lecture(bad_lecturer, 'Python', 4)
+best_student.rate_lecture(bad_lecturer, 'Python', 2)
+best_student.rate_lecture(bad_lecturer, 'C++', 3)
 
 print(f'Лучший студент - {best_student.name} с оценками: {best_student.grades}')
-print(best_lecturer.courses_attached)
 print(f'Уроки лектора {best_lecturer.name} оценили {best_lecturer.grades}')
 
 print(best_student)
+print(bad_student)
 print(best_lecturer)
+print(bad_lecturer)
+
+print(cool_rewiewer)
+
+print(best_lecturer > bad_lecturer)
+print(best_lecturer < bad_lecturer)
